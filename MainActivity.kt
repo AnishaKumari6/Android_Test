@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -20,7 +22,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -30,7 +35,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            StudentAttendanceApp()
+            AttendancePrortal()
         }
     }
 }
@@ -51,15 +56,13 @@ class StudentAttendanceViewModel : ViewModel() {
         Student("Anshul", false),
         Student("Kaalu", false)
     )
+
         private set
-
-    fun toggleAttendance(index: Int) {
-
+    fun Attendance(index: Int) {
         studentData[index] = studentData[index].copy(
             status = !studentData[index].status
         )
     }
-
     fun markPresent(index: Int) {
 
         if (!studentData[index].status) {
@@ -71,7 +74,6 @@ class StudentAttendanceViewModel : ViewModel() {
             status = true
         )
     }
-
     fun markAbsent(index: Int) {
 
         if (studentData[index].status) {
@@ -98,7 +100,7 @@ class StudentAttendanceViewModel : ViewModel() {
 }
 
 @Composable
-fun StudentAttendanceApp(
+fun AttendancePrortal(
     viewModel: StudentAttendanceViewModel = viewModel()
 ) {
 
@@ -111,21 +113,29 @@ fun StudentAttendanceApp(
 
         Text(
             text = "Student Attendance",
-            modifier = Modifier.padding(bottom = 20.dp)
+            modifier = Modifier
+                .padding(bottom = 20.dp)
+                .align(Alignment.CenterHorizontally),
+            fontSize = 39.sp,
+            fontWeight = FontWeight.Bold
         )
 
-        viewModel.studentData.forEachIndexed { index, student ->
+        LazyColumn(
+            modifier = Modifier.weight(1f)
+        ) {
+            itemsIndexed(viewModel.studentData) { index, item ->
 
-            StudentRow(
-                name = student.name,
-                status = student.status,
-                MarkPresentStatus = {
-                    viewModel.markPresent(index)
-                },
-                MarkAbsentStatus = {
-                    viewModel.markAbsent(index)
-                }
-            )
+                StudentRow(
+                    name = item.name,
+                    status = item.status,
+                    PresentStatus = {
+                        viewModel.markPresent(index)
+                    },
+                    AbsentStatus = {
+                        viewModel.markAbsent(index)
+                    }
+                )
+            }
         }
 
         Text(
@@ -143,8 +153,8 @@ fun StudentAttendanceApp(
 fun StudentRow(
     name: String,
     status: Boolean,
-    MarkPresentStatus: () -> Unit,
-    MarkAbsentStatus: () -> Unit
+    PresentStatus: () -> Unit,
+    AbsentStatus: () -> Unit
 ) {
 
     Row(
@@ -166,9 +176,9 @@ fun StudentRow(
         Button(
             onClick = {
                 if (status) {
-                    MarkAbsentStatus()
+                    AbsentStatus()
                 } else {
-                    MarkPresentStatus()
+                    PresentStatus()
                 }
             }
         ) {
